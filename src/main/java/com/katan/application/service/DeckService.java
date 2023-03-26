@@ -8,6 +8,7 @@ import com.katan.domain.repository.DeckRepository;
 import com.katan.infrastructure.web.dto.CardDTO;
 import com.katan.infrastructure.web.dto.DeckDTO;
 import com.katan.infrastructure.web.dto.MaterialDTO;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -36,6 +37,12 @@ public class DeckService {
 
   public DeckDTO createDeck(DeckDTO deckDTO) {
     Deck deck = toEntity(deckDTO);
+
+    // Establecer la relación bidireccional entre Deck y Card
+    for (Card card : deck.getCards()) {
+      card.setDeck(deck);
+    }
+
     Deck savedDeck = deckRepository.save(deck);
     return toDTO(savedDeck);
   }
@@ -71,13 +78,20 @@ public class DeckService {
   }
 
 
-  private Deck toEntity(DeckDTO deckDTO) {
-    return Deck.builder()
+  public Deck toEntity(DeckDTO deckDTO) {
+    List<Card> cards = new ArrayList<>();
+    Deck deck = Deck.builder()
         .id(deckDTO.getId())
         .name(deckDTO.getName())
-        .cards(deckDTO.getCards().stream().map(this::toCardEntity).collect(Collectors.toList()))
         .cost(toMaterialEntity(deckDTO.getCost()))
         .build();
+    for (CardDTO cardDTO : deckDTO.getCards()) {
+      Card card = toCardEntity(cardDTO);
+      card.setDeck(deck);
+      cards.add(card);
+    }
+    deck.setCards(cards);
+    return deck;
   }
 
   private Card toCardEntity(CardDTO cardDTO) {

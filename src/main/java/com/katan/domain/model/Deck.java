@@ -13,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Data
 @NoArgsConstructor
@@ -29,7 +30,8 @@ public class Deck {
   @OneToOne(cascade = CascadeType.ALL)
   private Material cost;
 
-  @OneToMany(mappedBy = "deck", cascade = CascadeType.ALL)
   @Builder.Default
+  @Setter
+  @OneToMany(cascade = CascadeType.ALL, mappedBy = "deck")
   private List<Card> cards = new ArrayList<>();
 }
